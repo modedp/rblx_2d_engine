@@ -49,7 +49,7 @@ function module:getguiHolder()
 	return game:GetService("Players").LocalPlayer and game:GetService("Players").LocalPlayer:FindFirstChild("PlayerGui") or game:GetService("StarterGui")
 end
 
-function module:getguiHolderObject(UIDName)
+function module:getguiHolderObject(UIDName : string)
 	return self:getguiHolder():WaitForChild("ScreenGui",0.2) and 
 		self:getguiHolder()["ScreenGui"]:FindFirstChild(UIDName) and 
 		self:getguiHolder()["ScreenGui"][UIDName] or 
@@ -66,18 +66,20 @@ function module:deepCopy(dictionary)
 end
 
 function module:__call(canvas) : canvastx
-	if self.onlyOneFrame and self.initialized then 
+	if not self.onlyOneFrame then
+		ctx.Name = game:GetService("HttpService"):GenerateGUID()
+	end
+	if self.onlyOneFrame and self.initialized then
 		return self.ctxDefault
 	end
 	local newCTX = self:deepCopy(ctx)
-	newCTX.guiHolderObject = self:getguiHolderObject() :: Instance
-	newCTX.Name = game:GetService("HttpService"):GenerateGUID()
+	newCTX.guiHolderObject = self:getguiHolderObject(newCTX.Name) :: Instance
 	local guiParent = self:getguiHolder()
 	newCTX.localBorderSize.width = guiParent.AbsoluteSize.X
 	newCTX.localBorderSize.height = guiParent.AbsoluteSize.Y
 	newCTX.width = ctx.localBorderSize.width
 	newCTX.height = ctx.localBorderSize.height
-	self:getguiHolderObject().Size = UDim2.fromOffset(newCTX.width,newCTX.height)
+	self:getguiHolderObject(newCTX.Name).Size = UDim2.fromOffset(newCTX.width,newCTX.height)
 	--[[
 			point A and B are the midsection of line 1 and line 3
 			point C and D are the midsection of line 2 and 4
@@ -211,7 +213,7 @@ function module:__call(canvas) : canvastx
 	function newCTX:beginPath()
 		self.tracingPathCoordinates = {}
 	end
-	
+
 	function newCTX:getCoords()
 		if not self.tracingPathCoordinates then
 			self.tracingPathCoordinates = {}
@@ -265,9 +267,10 @@ function module:__call(canvas) : canvastx
 	function newCTX:clearCanvas()
 		module:getguiHolderObject(self.Name):ClearAllChildren()
 	end
-	
+
 	if self.onlyOneFrame then
 		self.ctxDefault = newCTX
+		self.initialized = true
 	end
 	canvas.ctx = newCTX
 	return newCTX :: canvastx
