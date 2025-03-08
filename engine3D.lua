@@ -1,11 +1,19 @@
-local x = 400
-local y = 0
-local z = 300
-local fps = 30
-local walkSpd = 35;
-local turnSpd = 0.05;
+local canvas = require(script.Parent)
+local ctx = canvas:getCurrentScreen()
 
-local keyCodeTo = {
+local engine3D = {}
+engine3D.quadsToDraw = {}
+engine3D.playerPosition = {
+	x=400,
+	y=0,
+	z=300,
+}
+engine3D.fps = 30
+engine3D.walkSpeed = 35
+engine3D.turnSpeed = 0.05
+engine3D.facePlrAngle = 0
+engine3D.keyBindActive = {}
+engine3D.keyBinds = {
 	[Enum.KeyCode.Left] = "left",
 	[Enum.KeyCode.Right] = "right",
 	[Enum.KeyCode.Up] = "up",
@@ -15,18 +23,6 @@ local keyCodeTo = {
 	[Enum.KeyCode.W] = "up",
 	[Enum.KeyCode.S] = "down",
 	[Enum.KeyCode.Space] = "space"
-}
-local activeActions = {}
-local canvas = require(script.Parent)
-local ctx = canvas:getCurrentScreen()
-
-local fpang = 0
-local engine3D = {}
-engine3D.quadsToDraw = {}
-engine3D.playerPosition = {
-	x=400,
-	y=0,
-	z=300,
 }
 
 function engine3D:ctxDrawLine(x1, y1, x2, y2)
@@ -48,10 +44,10 @@ function engine3D:draw3dLine(x1, y1, z1, x2, y2, z2)
 	local y2Diff = y2 - self.PlayerPosition.y;
 	local z2Diff = z2 - self.PlayerPosition.z;
 
-	local translatedX1 = x1Diff * math.cos(-fpang) + z1Diff * math.sin(-fpang);
-	local translatedZ1 = z1Diff * math.cos(-fpang) - x1Diff * math.sin(-fpang);
-	local translatedX2 = x2Diff * math.cos(-fpang) + z2Diff * math.sin(-fpang);
-	local translatedZ2 = z2Diff * math.cos(-fpang) - x2Diff * math.sin(-fpang);
+	local translatedX1 = x1Diff * math.cos(-self.facePlrAngle) + z1Diff * math.sin(-self.facePlrAngle);
+	local translatedZ1 = z1Diff * math.cos(-self.facePlrAngle) - x1Diff * math.sin(-self.facePlrAngle);
+	local translatedX2 = x2Diff * math.cos(-self.facePlrAngle) + z2Diff * math.sin(-self.facePlrAngle);
+	local translatedZ2 = z2Diff * math.cos(-self.facePlrAngle) - x2Diff * math.sin(-self.facePlrAngle);
 
 	if(translatedZ1 < 0 or translatedZ2 < 0) then
 		return;
@@ -104,14 +100,14 @@ function engine3D:draw3dQuad(x1, y1, z1, x2, y2, z2, x3, y3, z3, x4, y4, z4)
 	local y4Diff = y4 - self.PlayerPosition.y;
 	local z4Diff = z4 - self.PlayerPosition.z;
 
-	local translatedX1 = x1Diff * math.cos(-fpang) + z1Diff * math.sin(-fpang);
-	local translatedZ1 = z1Diff * math.cos(-fpang) - x1Diff * math.sin(-fpang);
-	local translatedX2 = x2Diff * math.cos(-fpang) + z2Diff * math.sin(-fpang);
-	local translatedZ2 = z2Diff * math.cos(-fpang) - x2Diff * math.sin(-fpang);
-	local translatedX3 = x3Diff * math.cos(-fpang) + z3Diff * math.sin(-fpang);
-	local translatedZ3 = z3Diff * math.cos(-fpang) - x3Diff * math.sin(-fpang);
-	local translatedX4 = x4Diff * math.cos(-fpang) + z4Diff * math.sin(-fpang);
-	local translatedZ4 = z4Diff * math.cos(-fpang) - x4Diff * math.sin(-fpang);
+	local translatedX1 = x1Diff * math.cos(-self.facePlrAngle) + z1Diff * math.sin(-self.facePlrAngle);
+	local translatedZ1 = z1Diff * math.cos(-self.facePlrAngle) - x1Diff * math.sin(-self.facePlrAngle);
+	local translatedX2 = x2Diff * math.cos(-self.facePlrAngle) + z2Diff * math.sin(-self.facePlrAngle);
+	local translatedZ2 = z2Diff * math.cos(-self.facePlrAngle) - x2Diff * math.sin(-self.facePlrAngle);
+	local translatedX3 = x3Diff * math.cos(-self.facePlrAngle) + z3Diff * math.sin(-self.facePlrAngle);
+	local translatedZ3 = z3Diff * math.cos(-self.facePlrAngle) - x3Diff * math.sin(-self.facePlrAngle);
+	local translatedX4 = x4Diff * math.cos(-self.facePlrAngle) + z4Diff * math.sin(-self.facePlrAngle);
+	local translatedZ4 = z4Diff * math.cos(-self.facePlrAngle) - x4Diff * math.sin(-self.facePlrAngle);
 
 
 	if (translatedZ1 < 0 or translatedZ2 < 0 or translatedZ3 < 0 or translatedZ4 < 0) then
@@ -181,19 +177,19 @@ end
 
 function engine3D:controlLogic()
 	-- Implement your controlLogic function logic here
-	if (activeActions["up"]) then
-		self.PlayerPosition.x += math.sin(fpang) * walkSpd;
-		self.PlayerPosition.z += math.cos(fpang) * walkSpd;
+	if (self.keyBindActive["up"]) then
+		self.PlayerPosition.x += math.sin(self.facePlrAngle) * self.walkSpeed;
+		self.PlayerPosition.z += math.cos(self.facePlrAngle) * self.walkSpeed;
 	end
-	if (activeActions["down"]) then
-		self.PlayerPosition.x -= math.sin(fpang) * walkSpd;
-		self.PlayerPosition.z -= math.cos(fpang) * walkSpd;
+	if (self.keyBindActive["down"]) then
+		self.PlayerPosition.x -= math.sin(self.facePlrAngle) * self.walkSpeed;
+		self.PlayerPosition.z -= math.cos(self.facePlrAngle) * self.walkSpeed;
 	end
-	if (activeActions["right"]) then
-		fpang = fpang + turnSpd;
+	if (self.keyBindActive["right"]) then
+		self.facePlrAngle = self.facePlrAngle + self.turnSpeed;
 	end	
-	if (activeActions["left"]) then
-		fpang = fpang - turnSpd; 
+	if (self.keyBindActive["left"]) then
+		self.facePlrAngle = self.facePlrAngle - self.turnSpeed; 
 	end
 end
 
@@ -236,17 +232,24 @@ end
 
 function engine3D:__call()
 	game:GetService("UserInputService").InputBegan:Connect(function(input, gameProcessed)
-		if keyCodeTo[input.KeyCode] then
-			activeActions[keyCodeTo[input.KeyCode]] = true
+		if self.keyBinds[input.KeyCode] then
+			self.keyBindActive[self.keyBinds[input.KeyCode]] = true
 		end
 	end)
 
 	game:GetService("UserInputService").InputEnded:Connect(function(input)
-		if keyCodeTo[input.KeyCode] then
-			activeActions[keyCodeTo[input.KeyCode]] = false
+		if self.keyBinds[input.KeyCode] then
+			self.keyBindActive[self.keyBinds[input.KeyCode]] = false
 		end
 	end)
-	while task.wait(1/fps) do
+	self.running = true
+	while engine3D.running do
 		self:gameLoop()
+		task.wait(1/self.fps)
 	end
+	return self
 end	
+
+engine3D = setmetatable(engine3D,engine3D)
+
+return engine3D
