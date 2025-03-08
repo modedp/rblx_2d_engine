@@ -200,14 +200,14 @@ end
 function engine3D:renderQuads()
 	-- Implement your renderQuads function logic here
 
-	for i = 1,#quadsToDraw do 
-		ctx.fillStyle = quadsToDraw[i][10]
-		self:ctxDrawQuad(quadsToDraw[i][1],quadsToDraw[i][2],quadsToDraw[i][3],quadsToDraw[i][4],quadsToDraw[i][5],quadsToDraw[i][6],quadsToDraw[i][7],quadsToDraw[i][8])
+	for i = 1,#self.quadsToDraw do 
+		ctx.fillStyle = self.quadsToDraw[i][10]
+		self:ctxDrawQuad(self.quadsToDraw[i][1],self.quadsToDraw[i][2],self.quadsToDraw[i][3],self.quadsToDraw[i][4],self.quadsToDraw[i][5],self.quadsToDraw[i][6],self.quadsToDraw[i][7],self.quadsToDraw[i][8])
 	end
 end
 
 function engine3D:paintScreen()
-	quadsToDraw = {};
+	self.quadsToDraw = {};
 
 	ctx.clearCanvas()
 
