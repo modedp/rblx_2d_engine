@@ -1,2 +1,3 @@
 # rblx_2d_engine
-testing the makings of a 2d engine using only frames, no editable images because thats cheating and a cheap shortcut thats id verified walled
+Testing the makings of a 2D and 3D engine using only frames. 
+Not using editable images because thats a lame shortcut that is id verified walled
