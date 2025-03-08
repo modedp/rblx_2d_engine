@@ -50,12 +50,16 @@ function module:getguiHolder()
 	return game:GetService("Players").LocalPlayer and game:GetService("Players").LocalPlayer:FindFirstChild("PlayerGui") or game:GetService("StarterGui")
 end
 
-function module:getguiHolderObject(UIDName : string)
-	return self:getguiHolder():WaitForChild(UIDName,0.2) and 
-		self:getguiHolder()[UIDName]:FindFirstChild(UIDName) and 
+function module:getguiHolderObject(UIDName : string, canvasOBJ : canvastx?)
+	return self:getguiHolder():WaitForChild(UIDName,0.1) and 
+		self:getguiHolder()[UIDName]:WaitForChild(UIDName, 0.1) and 
 		self:getguiHolder()[UIDName][UIDName] or 
-		roInstancer("Frame",roInstancer("ScreenGui",
-			self:getguiHolder()){Name = UIDName}){Name = UIDName}
+		roInstancer("Frame", self:getguiHolder():WaitForChild(UIDName,0.1) or roInstancer("ScreenGui",
+			self:getguiHolder()){Name = UIDName}){
+		Name = UIDName,
+		Size = UDim2.fromOffset((canvasOBJ or ctx.localBorderSize).width,(canvasOBJ or ctx.localBorderSize).height),
+		BorderSizePixel = 0
+	}
 end
 
 function module:deepCopy(dictionary)
@@ -166,7 +170,7 @@ function module:__call(canvas) : canvastx
 		local midPointX = (bx1 + bx2) / 2
 		local midPointY = (by1 + by2) / 2
 
-		local line = roInstancer("Frame",module:getguiHolderObject(self.Name)){
+		local line = roInstancer("Frame",module:getguiHolderObject(self.Name, self)){
 			Size = UDim2.fromOffset(lineLength, thickness or 1),
 			BorderSizePixel = 0,
 			BackgroundColor3 = self.applyColoredAuto and self.fillStyle or Color3.new(1,1,1),
@@ -183,7 +187,7 @@ function module:__call(canvas) : canvastx
 
 	function newCTX:drawPoint(x1 : number,y1 : number) : Frame?
 		self.objectID+=1
-		local point = roInstancer("Frame",module:getguiHolderObject(self.Name)){
+		local point = roInstancer("Frame",module:getguiHolderObject(self.Name, self)){
 			Size = UDim2.fromOffset(1,1),
 			BorderSizePixel = 0,
 			BackgroundColor3 = self.applyColoredAuto and self.fillStyle or Color3.new(1,1,1),
