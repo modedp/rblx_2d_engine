@@ -3,17 +3,17 @@ module.__index = module
 
 -- Retrieves the current screen object
 function module:retrieveScreen()
-	return require(script.Parent).getCurrentScreen()
+	return require(script.Parent):getCurrentScreen()
 end
 
 -- Draws the outline of a triangle on the screen
 function module:drawTriangleOutline(x1, y1, x2, y2, x3, y3, size)
-	self:retrieveScreen().drawTriangle(x1, y1, x2, y2, x3, y3, size)
+	self:retrieveScreen():drawTriangle(x1, y1, x2, y2, x3, y3, size)
 end
 
 -- Draws a circle on the screen
 function module:drawCircle(centerX, centerY, diameter)
-	self:retrieveScreen().drawCircle(centerX, centerY, diameter)
+	self:retrieveScreen():drawCircle(centerX, centerY, diameter)
 end
 
 -- Main function to draw a triangle and its inscribed circle, then iteratively draw smaller triangles

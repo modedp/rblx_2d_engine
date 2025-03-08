@@ -31,6 +31,7 @@ export type canvastx = {
 	fill: (self: canvastx) -> (),
 	fillRect: (self: canvastx,x1 : number,y1 : number,x2 : number,y2 : number) -> (),
 	clearCanvas: (self: canvastx) -> (),
+	objectID: number,
 }
 
 local ctx = {
@@ -50,11 +51,11 @@ function module:getguiHolder()
 end
 
 function module:getguiHolderObject(UIDName : string)
-	return self:getguiHolder():WaitForChild("ScreenGui",0.2) and 
-		self:getguiHolder()["ScreenGui"]:FindFirstChild(UIDName) and 
-		self:getguiHolder()["ScreenGui"][UIDName] or 
+	return self:getguiHolder():WaitForChild(UIDName,0.2) and 
+		self:getguiHolder()[UIDName]:FindFirstChild(UIDName) and 
+		self:getguiHolder()[UIDName][UIDName] or 
 		roInstancer("Frame",roInstancer("ScreenGui",
-			self:getguiHolder()){Name = UIDName}){Name = "MainGameFrame"}
+			self:getguiHolder()){Name = UIDName}){Name = UIDName}
 end
 
 function module:deepCopy(dictionary)
@@ -74,11 +75,12 @@ function module:__call(canvas) : canvastx
 	end
 	local newCTX = self:deepCopy(ctx)
 	newCTX.guiHolderObject = self:getguiHolderObject(newCTX.Name) :: Instance
-	local guiParent = self:getguiHolder()
+	local guiParent = self:getguiHolder():WaitForChild(newCTX.Name)
 	newCTX.localBorderSize.width = guiParent.AbsoluteSize.X
 	newCTX.localBorderSize.height = guiParent.AbsoluteSize.Y
 	newCTX.width = ctx.localBorderSize.width
 	newCTX.height = ctx.localBorderSize.height
+	newCTX.objectID = 0
 	self:getguiHolderObject(newCTX.Name).Size = UDim2.fromOffset(newCTX.width,newCTX.height)
 	--[[
 			point A and B are the midsection of line 1 and line 3
@@ -157,6 +159,7 @@ function module:__call(canvas) : canvastx
 
 	function newCTX:drawLine(x1 : number,y1 : number,x2 : number,y2 : number, thickness : number?) : Frame?
 		local bx1,by1,bx2,by2 : number = unpack(self:boundedLine(x1,y1,x2,y2))
+		self.objectID+=1
 
 		local lineLength = math.sqrt((bx2 - bx1)^2 + (by2 - by1)^2)
 		local angle = math.atan2(by2 - by1, bx2 - bx1)
@@ -169,19 +172,23 @@ function module:__call(canvas) : canvastx
 			BackgroundColor3 = self.applyColoredAuto and self.fillStyle or Color3.new(1,1,1),
 			Position = UDim2.fromOffset(midPointX - lineLength / 2, midPointY - (thickness or 1) / 2),
 			Rotation = math.deg(angle),
+			Name = self.objectID,
 			ZIndex = 1,
 		} :: Frame
+		
 
 		self.latestObject = line
 		return line
 	end
 
 	function newCTX:drawPoint(x1 : number,y1 : number) : Frame?
+		self.objectID+=1
 		local point = roInstancer("Frame",module:getguiHolderObject(self.Name)){
 			Size = UDim2.fromOffset(1,1),
 			BorderSizePixel = 0,
 			BackgroundColor3 = self.applyColoredAuto and self.fillStyle or Color3.new(1,1,1),
 			Position = UDim2.fromOffset(x1,y1),
+			Name = self.objectID,
 			ZIndex = 2,
 		} :: Frame
 

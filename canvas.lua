@@ -2,6 +2,8 @@ local module = {}
 local ctxBuilder = require(script.ctxBuilder)
 local roInstancer = require(script.roInstancer);
 
+module.CurrentScreen = false
+
 function module:retrievectx()
 	return ctxBuilder(self)
 end

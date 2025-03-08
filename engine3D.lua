@@ -1,5 +1,4 @@
 local canvas = require(script.Parent)
-local ctx = canvas:getCurrentScreen()
 
 local engine3D = {}
 engine3D.quadsToDraw = {}
@@ -26,16 +25,16 @@ engine3D.keyBinds = {
 }
 
 function engine3D:ctxDrawLine(x1, y1, x2, y2)
-	ctx:beginPath()
-	ctx:moveTo(x1, y1);
-	ctx:lineTo(x2, y2);
-	ctx:stroke();
+	self.ctx:beginPath()
+	self.ctx:moveTo(x1, y1);
+	self.ctx:lineTo(x2, y2);
+	self.ctx:stroke();
 end
 
 function engine3D:draw3dLine(x1, y1, z1, x2, y2, z2)
 	-- Implement your draw3dLine function logic here
-	local centerOfScreenX = ctx.width/2;
-	local centerOfScreenY = ctx.height/2;
+	local centerOfScreenX = self.ctx.width/2;
+	local centerOfScreenY = self.ctx.height/2;
 
 	local x1Diff = x1 - self.PlayerPosition.x;
 	local y1Diff = y1 - self.PlayerPosition.y;
@@ -84,8 +83,8 @@ end
 
 function engine3D:draw3dQuad(x1, y1, z1, x2, y2, z2, x3, y3, z3, x4, y4, z4)
 	-- Implement your draw3dQuad function logic here
-	local centerOfScreenX = ctx.width/2;
-	local centerOfScreenY = ctx.height/2;
+	local centerOfScreenX = self.ctx.width/2;
+	local centerOfScreenY = self.ctx.height/2;
 
 	local x1Diff = x1 - self.PlayerPosition.x;
 	local y1Diff = y1 - self.PlayerPosition.y;
@@ -128,7 +127,7 @@ function engine3D:draw3dQuad(x1, y1, z1, x2, y2, z2, x3, y3, z3, x4, y4, z4)
 
 	local avgTZ = (translatedZ1 + translatedZ2 + translatedZ3 + translatedZ4) / 4;
 
-	table.insert(self.quadsToDraw,{dispX1, dispY1, dispX2, dispY2, dispX3, dispY3, dispX4, dispY4, avgTZ, ctx.fillStyle})
+	table.insert(self.quadsToDraw,{dispX1, dispY1, dispX2, dispY2, dispX3, dispY3, dispX4, dispY4, avgTZ, self.ctx.fillStyle})
 end
 
 function engine3D:fillPrism(prX, prY, prZ, prW, prH, prL)
@@ -167,12 +166,12 @@ end
 
 function engine3D:ctxDrawQuad(x1, y1, x2, y2, x3, y3, x4, y4)
 	-- Implement your ctxDrawQuad function logic here
-	ctx:beginPath();
-	ctx:moveTo(x1, y1);
-	ctx:lineTo(x2, y2);
-	ctx:lineTo(x3, y3);
-	ctx:lineTo(x4, y4);
-	ctx:fill();
+	self.ctx:beginPath();
+	self.ctx:moveTo(x1, y1);
+	self.ctx:lineTo(x2, y2);
+	self.ctx:lineTo(x3, y3);
+	self.ctx:lineTo(x4, y4);
+	self.ctx:fill();
 end
 
 function engine3D:controlLogic()
@@ -194,6 +193,7 @@ function engine3D:controlLogic()
 end
 
 function engine3D:runGameLogic()
+	self.ctx = canvas:getCurrentScreen()
 	self:controlLogic()
 end
 
@@ -201,7 +201,7 @@ function engine3D:renderQuads()
 	-- Implement your renderQuads function logic here
 
 	for i = 1,#self.quadsToDraw do 
-		ctx.fillStyle = self.quadsToDraw[i][10]
+		self.ctx.fillStyle = self.quadsToDraw[i][10]
 		self:ctxDrawQuad(self.quadsToDraw[i][1],self.quadsToDraw[i][2],self.quadsToDraw[i][3],self.quadsToDraw[i][4],self.quadsToDraw[i][5],self.quadsToDraw[i][6],self.quadsToDraw[i][7],self.quadsToDraw[i][8])
 	end
 end
@@ -209,15 +209,15 @@ end
 function engine3D:paintScreen()
 	self.quadsToDraw = {};
 
-	ctx.clearCanvas()
+	self.ctx.clearCanvas()
 
-	ctx.fillStyle = Color3.new(6/16,9/16,6/16);
-	ctx.fillRect(0, 0, ctx.width, ctx.height);
+	self.ctx.fillStyle = Color3.new(6/16,9/16,6/16);
+	self.ctx.fillRect(0, 0, self.ctx.width, self.ctx.height);
 
-	ctx.fillStyle = Color3.new(0,0,0);
+	self.ctx.fillStyle = Color3.new(0,0,0);
 
 	for i = 0,7 do
-		ctx.fillStyle = Color3.fromRGB(i*31,((i+2)%8)*31,((i+5)%8)*31);
+		self.ctx.fillStyle = Color3.fromRGB(i*31,((i+2)%8)*31,((i+5)%8)*31);
 		self:fpDrawPillar(550, 0, 200 + 400 * i, 50, 300, 50);
 		self:fpDrawPillar(200, 0, 200 + 400 * i, 50, 300, 50);
 	end
