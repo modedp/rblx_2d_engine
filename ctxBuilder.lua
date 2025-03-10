@@ -162,25 +162,24 @@ function module:__call(canvas) : canvastx
 	end
 
 	function newCTX:drawLine(x1 : number,y1 : number,x2 : number,y2 : number, thickness : number?) : Frame?
-		local bx1,by1,bx2,by2 : number = unpack(self:boundedLine(x1,y1,x2,y2))
-		self.objectID+=1
+		local bx1, by1, bx2, by2 : number = unpack(self:boundedLine(math.round(x1), math.round(y1), math.round(x2), math.round(y2)))
+		self.objectID += 1
 
 		local lineLength = math.sqrt((bx2 - bx1)^2 + (by2 - by1)^2)
 		local angle = math.atan2(by2 - by1, bx2 - bx1)
 		local midPointX = (bx1 + bx2) / 2
 		local midPointY = (by1 + by2) / 2
 
-		local line = roInstancer("Frame",module:getguiHolderObject(self.Name, self)){
+		local line = roInstancer("Frame", module:getguiHolderObject(self.Name, self)){
 			Size = UDim2.fromOffset(lineLength, thickness or 1),
+			AnchorPoint = Vector2.new(0.5, 0.5),
+			Position = UDim2.fromOffset(midPointX, midPointY),
+			Rotation = math.deg(angle),
 			BorderSizePixel = 0,
 			BackgroundColor3 = self.applyColoredAuto and self.fillStyle or Color3.new(1,1,1),
-			Position = UDim2.fromOffset(midPointX - lineLength / 2, midPointY - (thickness or 1) / 2),
-			Rotation = math.deg(angle),
 			Name = self.objectID,
 			ZIndex = 1,
 		} :: Frame
-		
-
 		self.latestObject = line
 		return line
 	end
@@ -202,7 +201,7 @@ function module:__call(canvas) : canvastx
 
 	function newCTX:drawCircle(x1 : number, y1 : number, radius : number) : Frame?
 		radius = radius or 1
-		self:drawPoint(x1, y1);
+		self:drawPoint(math.floor(x1), math.floor(y1));
 		(self.latestObject :: Frame).AnchorPoint = Vector2.new(0.5,0.5);
 		(self.latestObject :: Frame).BackgroundColor3 = self.applyColoredAuto and self.fillStyle or Color3.new(1,1,1);
 		(self.latestObject :: Frame).Size = UDim2.fromOffset(radius,radius);
